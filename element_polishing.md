@@ -155,6 +155,14 @@ bcftools view -f "PASS" -e 'FORMAT/GQ<=30' /private/groups/patenlab/mira/hprc_po
 mkdir -p logs && time SINGULARITY_CACHEDIR=`pwd`/outputs/cache/.singularity/cache MINIWDL__SINGULARITY__IMAGE_CACHE=`pwd`/outputs/cache/.cache/miniwdl toil-wdl-runner --logDebug --jobStore ./big_store --batchSystem slurm --batchLogsDir ./logs /private/home/mmastora/progs/hpp_production_workflows/QC/wdl/workflows/applyPolish_dipcall.wdl applyPolish_dipcall_inputs.json -o applyPolish_dipcall_outputs -m applyPolish_dipcall_outputs.json  2>&1 | tee applyPolish_dipcall_log.txt
 ```
 
+Running hap.py on all three GQ filters
+```
+bash /private/home/mmastora/progs/scripts/HG002_happy.sh /private/groups/patenlab/mira/hprc_polishing/element_polishing/homozygous_alleles/filter_experiments/homalt_calls_PASS_GQ_5/applyPolish_dipcall_outputs/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element.PASS.homalt.GQ5_hap1.polished.dipcall.vcf.gz /private/groups/patenlab/mira/hprc_polishing/element_polishing/homozygous_alleles/filter_experiments/homalt_calls_PASS_GQ_5/applyPolish_dipcall_outputs/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent_intersect_HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element.PASS.homalt.GQ5_hap1.polished.dipcall.bed /private/groups/patenlab/mira/hprc_polishing/element_polishing/homozygous_alleles/filter_experiments/homalt_calls_PASS_GQ_5/homalt_calls_PASS_GQ_5_happy_out
+
+bash /private/home/mmastora/progs/scripts/HG002_happy.sh /private/groups/patenlab/mira/hprc_polishing/element_polishing/homozygous_alleles/filter_experiments/homalt_calls_PASS_GQ_10/applyPolish_dipcall_outputs/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element.PASS.homalt.GQ10_hap1.polished.dipcall.vcf.gz /private/groups/patenlab/mira/hprc_polishing/element_polishing/homozygous_alleles/filter_experiments/homalt_calls_PASS_GQ_10/applyPolish_dipcall_outputs/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent_intersect_HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element.PASS.homalt.GQ10_hap1.polished.dipcall.bed /private/groups/patenlab/mira/hprc_polishing/element_polishing/homozygous_alleles/filter_experiments/homalt_calls_PASS_GQ_10/homalt_calls_PASS_GQ_10_happy_out
+
+bash /private/home/mmastora/progs/scripts/HG002_happy.sh /private/groups/patenlab/mira/hprc_polishing/element_polishing/homozygous_alleles/filter_experiments/homalt_calls_PASS_GQ_20/applyPolish_dipcall_outputs/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element.PASS.homalt.GQ20_hap1.polished.dipcall.vcf.gz /private/groups/patenlab/mira/hprc_polishing/element_polishing/homozygous_alleles/filter_experiments/homalt_calls_PASS_GQ_20/applyPolish_dipcall_outputs/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent_intersect_HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element.PASS.homalt.GQ20_hap1.polished.dipcall.bed /private/groups/patenlab/mira/hprc_polishing/element_polishing/homozygous_alleles/filter_experiments/homalt_calls_PASS_GQ_20/homalt_calls_PASS_GQ_20_happy_out
+```
 ### 2.3 Implementing method to filter out variants whose reads aren't aligned to the same haplotype
 
 #### Step 1: Project variants from one haplotype to the other
@@ -262,8 +270,8 @@ Test set:
 ```
 h1tg000001l	95040761	95040762	.	5.6	T	C	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:3:7:0,7:1:2,4,0	h1tg000001l	95040761	95040762	.	5.6	T	C	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:3:7:0,7:1:2,4,0
 h1tg000001l	4641590	4641591	.	22.4	C	CTT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:5:28:5,23:0.821429:20,2,0	h1tg000001l	4641590	4641591	.	22.4	C	CTT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:5:28:5,23:0.821429:20,2,0
-h1tg000001l	76358599	76358600	.	4.1	C	T	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:4:6:0,6:1:1,11,0	h2tg000020l	87025569	87025570	.	4.1	C	T	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:4:6:0,6:1:1,11,0
-h1tg000001l	7127121	7127122	.	19.4	A	AAT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:15:34:2,31:0.911765:19,17,0	h2tg000020l	156227861	156227862	.	19.4	A	AAT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:15:34:2,31:0.911765:19,17,0
+h1tg000001l	76358599	76358600	.	4.1	C	T	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:4:6:0,6:1:1,11,0	h1tg000001l	76358599	76358600	.	4.1	C	T	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:4:6:0,6:1:1,11,0
+h1tg000001l	7127121	7127122	.	19.4	A	AAT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:15:34:2,31:0.911765:19,17,0	h1tg000001l	156227861	156227862	.	19.4	A	AAT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:15:34:2,31:0.911765:19,17,0
 h1tg000001l	8382273	8382274	.	4.4	G	C	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:2:5:1,4:0.8:0,3,0	h1tg000001l	8392273	8392274	.	4.4	G	C	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:2:5:1,4:0.8:0,3,0
 h1tg000001l	112169074	112169075	.	19.4	A	AT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:17:125:2,123:0.984:19,21,0	h1tg000001l	112169100	112169101	.	19.4	A	AT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:17:125:2,123:0.984:19,21,0
 ```
@@ -272,6 +280,15 @@ h1tg000001l	112169074	112169075	.	19.4	A	AT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:
 - paste projection and projectables side by side,cat mat and pats which is input to script,
 - for every bed block, extract read names from bamfile on each haplotype
 - compare two lists, only print variant to new vcf file if they are different
+
+```
+python3 check_haplotype_read_alignments.py --hap1Bam /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.h1tg000001l.srt.bam --hap2Bam /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.h1tg000001l.srt.bam --hap1Blocks /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/test_projections.bed --hap2Blocks /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/test_projections.bed --inVcf /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf --outVcf /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.deepvariant_1.5.WGS.PASS.homalt.filt.vcf
+```
+
+Confirmed it worked on the test set. Now running it on the whole bam file and set of projections to see how many homozygous variants are kept.
+
+Using the exact projections, without expanding by 10bp:
+
 
 ## 3. Integrating heterozygous element calls: correcting false homozygous regions
 
