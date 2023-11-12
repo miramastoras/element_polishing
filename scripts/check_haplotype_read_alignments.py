@@ -67,9 +67,11 @@ def main():
                         help='paste -d "\\t" <outputProjectable> <outputProjection> > <hap1Blocks file>')
     parser.add_argument('--hap2Blocks', type=str,
                         help='paste -d "\\t" <outputProjectable> <outputProjection> > <hap2Blocks file>')
-    parser.add_argument('--inVcf', type=str,
-                        help='Original vcf file')
-    parser.add_argument('--outVcf', type=str,
+    parser.add_argument('--hap1Vcf', type=str,
+                        help='Original hap1 vcf file')
+    parser.add_argument('--hap2Vcf', type=str,
+                        help='Original hap1 vcf file')
+    parser.add_argument('--outPrefix', type=str,
                         help='Filtered vcf file')
 
     # Fetch the arguments
@@ -78,24 +80,32 @@ def main():
     hap2BamPath = args.hap2Bam
     hap1BlocksPath = args.hap1Blocks
     hap2BlocksPath=args.hap2Blocks
-    vcfPath = args.inVcf
-    vcfOutPath = args.outVcf
+    hap1VcfPath = args.hap1Vcf
+    hap2VcfPath = args.hap2Vcf
+    hap1OutVcfPath = args.outPrefix + ".hap1.vcf"
+    hap2OutVcfPath = args.outPrefix + ".hap2.vcf"
 
     # print vcf header to output file
-    outVcf = open(vcfOutPath, "a")
-    with open(vcfPath) as inVcf:
+    outHap1Vcf = open(hap1OutVcfPath, "a")
+    with open(hap1VcfPath) as inVcf:
         lines = inVcf.readlines()
-        [outVcf.write(line) for line in lines if line.split("\t")[0][0]=="#" ]
-    outVcf.close()
+        [outHap1Vcf.write(line) for line in lines if line.split("\t")[0][0]=="#" ]
+    outHap1Vcf.close()
+
+    outHap2Vcf = open(hap2OutVcfPath, "a")
+    with open(hap2VcfPath) as inVcf:
+        lines = inVcf.readlines()
+        [outHap2Vcf.write(line) for line in lines if line.split("\t")[0][0] == "#"]
+    outHap2Vcf.close()
 
     # read in bams
     hap1Bam=pysam.AlignmentFile(hap1BamPath, "rb")
     hap2Bam = pysam.AlignmentFile(hap2BamPath, "rb")
 
     # filter hap1 variants
-    filter_variants(hap1Bam,hap2Bam,hap1BlocksPath,vcfOutPath)
+    filter_variants(hap1Bam,hap2Bam,hap1BlocksPath,hap1OutVcfPath)
     # filter hap2 variants
-    filter_variants(hap2Bam, hap1Bam, hap2BlocksPath, vcfOutPath)
+    filter_variants(hap2Bam, hap1Bam, hap2BlocksPath, hap2OutVcfPath)
 
 if __name__ == '__main__':
     main()
