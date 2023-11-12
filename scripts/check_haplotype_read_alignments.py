@@ -17,21 +17,23 @@ def main():
                         help='haplotype 2 bam file')
     parser.add_argument('--blocks', type=str,
                         help='tab separated matched bed file containing projectable variants and their projections on the other haplotype')
+    parser.add_argument('--vcf', type=str,
+                        help='Original vcf file')
 
     # Fetch the arguments
     args = parser.parse_args()
     hap1BamPath = args.hap1Bam
     hap2BamPath = args.hap2Bam
     blocksPath = args.blocks
+    vcfPath = args.vcf
 
     # read in bams
     hap1Bam=pysam.AlignmentFile(hap1BamPath, "rb")
     hap2Bam = pysam.AlignmentFile(hap2BamPath, "rb")
 
-    # read in variants
-    with open(blocksPath, newline='') as file:
-        result_list = list(csv.reader(file))
-    print(result_list)
-    result_2D = numpy.array(result_list)
+    with open(blocksPath) as blocksFile:
+        lines = blocksFile.readlines()
+        lines = [line.rstrip().split('\t') for line in lines]
 
-    print(result_2D)
+    for line in lines:
+        print(line)
