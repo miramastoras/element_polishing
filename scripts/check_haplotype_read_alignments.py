@@ -53,7 +53,7 @@ def filter_variants(projectableBam,projectionBam,blocksPath,outVcfPath):
 
         if projectionReadNames==projectableReadNames:
             with open(outVcfPath, 'a') as outVcf:
-                vcfEntry=[line[0]] + line[3:12]
+                vcfEntry=[line[0]] + [line[3]] + [line[4]] + [line[6]] + [line[7]] + [line[5]] + line[8:11] + [line[12]] + [line[11]]
                 print(*vcfEntry,sep="\t",file = outVcf)
 
 def main():

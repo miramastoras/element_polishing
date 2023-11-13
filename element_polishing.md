@@ -2,24 +2,15 @@
 
 This document has experiments for polishing with element deepvariant calls
 
-## 1. Workflow outline
-
-1. Align element data to each haplotype, remove reads with too much divergence
-2. Call variants with deepvariant on element bams and hifi bam
-3. Filter element variants:
-    - GQ
-    - same reads aligning to same place on both haplotypes
-4. Phase element variants
-5.
 
 
-## 2. Just polishing with homozygous element calls to correct "false hets":
+## 1. Just polishing with homozygous element calls to correct "false hets":
 
 Plan here: https://docs.google.com/presentation/d/1diAuHi9iJHjgWwmgzR0yjtPeLw7yESthG5F5cr9aB1w/edit#slide=id.g25e8d33c0ac_0_72
 
 
 
-### 2.1 Filter alignments by de tag
+### 1.1 Filter alignments by de tag
 
 subset to one chromosome
 ```
@@ -44,9 +35,9 @@ samtools index HG002_element_50x_all2pat.mm2.srt.h1tg000010l.bam
 time python3 /private/groups/patenlab/mira/hprc_polishing/element_polishing/homozygous_alleles/de_dist/plot_de_distribution.py -b /private/groups/patenlab/mira/hprc_polishing/data/element_HG002/hprc_y2/alignments/minimap2/HG002_element_50x_all2pat.mm2.srt.h1tg000010l.bam -p /private/groups/patenlab/mira/hprc_polishing/element_polishing/homozygous_alleles/de_dist/HG002_element_50x_all2pat.h1tg000010l.mm2
 ```
 
-### 2.2 Polishing with different filters
+### 1.2 Polishing with different filters
 
-#### 2.2.1 All homozygous "PASS" variants
+#### 1.2.1 All homozygous "PASS" variants
 
 Subset vcf to all 1/1 genotype calls
 ```
@@ -216,18 +207,31 @@ input: projection
 ```
 /private/home/mmastora/progs/bin/vcf2bed --do-not-split < /private/groups/patenlab/mira/hprc_polishing/data/element_HG002/hprc_y2/deepvariant/bwa-mem_bams/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.mat.combined.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf > /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.mat.combined.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf.bed
 
-awk '{print $1"\t"$2-10"\t"$3+10"\t"$4"\t"$5"\t"$6"\t"$7"\t"$8"\t"$9"\t"$10"\t"$11"\t"$12}' /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.mat.combined.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf.bed > /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.mat.combined.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf.10bp.bed
+awk '{print $1"\t"$2"\t"$3"\t"$3"\t"$4"\t"$5"\t"$6"\t"$7"\t"$8"\t"$9"\t"$10"\t"$11"\t"$12}' /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.mat.combined.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf.bed > /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.mat.combined.element_50X.deepvariant_1.5.WGS.PASS.homalt.0bp.vcf.bed
+
+awk '{print $1"\t"$2-10"\t"$3+10"\t"$3"\t"$4"\t"$5"\t"$6"\t"$7"\t"$8"\t"$9"\t"$10"\t"$11"\t"$12}' /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.mat.combined.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf.bed > /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.mat.combined.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf.10bp.bed
 
 # asking mobin why some variants are unprojectable
 # the bed window size to project will need to be a parameter to test for this script
 
 grep "h1" /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.mat.combined.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf.10bp.bed > test.bed
-
-docker run --rm -it -u `id -u`:`id -g` -v /private/groups/patenlab/mira:/private/groups/patenlab/mira mobinasri/flagger:latest python3 /home/programs/src/project_blocks_multi_thread.py --threads 10 --mode 'ref2asm' --paf /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/toil_asm2asm_paf_out/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.mat2pat.paf --blocks /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.mat.combined.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf.bed --outputProjectable /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/pat_variants_projectable_to_mat.bed --outputProjection /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/pat_variants_projection_to_mat.bed
+```
+Projections of different sizes:
+```
+# just the variants
+docker run --rm -it -u `id -u`:`id -g` -v /private/groups/patenlab/mira:/private/groups/patenlab/mira mobinasri/flagger:latest python3 /home/programs/src/project_blocks_multi_thread.py --threads 10 --mode 'ref2asm' --paf /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/toil_asm2asm_paf_out/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.mat2pat.paf --blocks /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.mat.combined.element_50X.deepvariant_1.5.WGS.PASS.homalt.0bp.vcf.bed --outputProjectable /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/pat_variants_projectable_to_mat.bed --outputProjection /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/pat_variants_projection_to_mat.bed
 
 # project mat to pat
-docker run --rm -it -u `id -u`:`id -g` -v /private/groups/patenlab/mira:/private/groups/patenlab/mira mobinasri/flagger:latest python3 /home/programs/src/project_blocks_multi_thread.py --threads 10 --mode 'asm2ref' --paf /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/toil_asm2asm_paf_out/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.mat2pat.paf --blocks /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.mat.combined.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf.bed --outputProjectable /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/mat_variants_projectable_to_pat.bed --outputProjection /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/mat_variants_projection_to_pat.bed
+docker run --rm -it -u `id -u`:`id -g` -v /private/groups/patenlab/mira:/private/groups/patenlab/mira mobinasri/flagger:latest python3 /home/programs/src/project_blocks_multi_thread.py --threads 10 --mode 'asm2ref' --paf /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/toil_asm2asm_paf_out/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.mat2pat.paf --blocks /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.mat.combined.element_50X.deepvariant_1.5.WGS.PASS.homalt.0bp.vcf.bed --outputProjectable /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/mat_variants_projectable_to_pat.bed --outputProjection /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/mat_variants_projection_to_pat.bed
+
+# 10bp ahead and behind it
+# just the variants
+docker run --rm -it -u `id -u`:`id -g` -v /private/groups/patenlab/mira:/private/groups/patenlab/mira mobinasri/flagger:latest python3 /home/programs/src/project_blocks_multi_thread.py --threads 10 --mode 'ref2asm' --paf /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/toil_asm2asm_paf_out/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.mat2pat.paf --blocks /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.mat.combined.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf.10bp.bed --outputProjectable /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/pat_variants_projectable_to_mat.10bp.bed --outputProjection /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/pat_variants_projection_to_mat.10bp.bed
+
+# project mat to pat
+docker run --rm -it -u `id -u`:`id -g` -v /private/groups/patenlab/mira:/private/groups/patenlab/mira mobinasri/flagger:latest python3 /home/programs/src/project_blocks_multi_thread.py --threads 10 --mode 'asm2ref' --paf /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/toil_asm2asm_paf_out/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.mat2pat.paf --blocks /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.mat.combined.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf.10bp.bed --outputProjectable /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/mat_variants_projectable_to_pat.10bp.bed --outputProjection /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/mat_variants_projection_to_pat.10bp.bed
 ```
+
 
 #### Step 3: Come up with a test set for writing the code
 
@@ -252,28 +256,18 @@ samtools index HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.h1tg000001l.
 ```
 - starting with no bp expansion on either side
 - paste projection and projectables side by side, cat mat and pats which is input to script,
-```
-paste -d "\t" /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/pat_variants_projectable_to_mat.bed /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/pat_variants_projection_to_mat.bed > /private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/pat_variants_projected_to_mat.bed
-
-paste -d "\t" /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/pat_variants_projectable_to_mat.bed /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/mat_variants_projection_to_pat.bed > /private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/mat_variants_projected_to_pat.bed
-
-cat /private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/pat_variants_projected_to_mat.bed /private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/mat_variants_projected_to_pat.bed > variants_projected.bed
-
-grep "h1tg000001l" variants_projected.bed
-```
-
 - give script same bamfile for both haplotypes, "projections" that have the same variant are the same and ones with different variants will be shifted upstream or completely different locations
 
 
 Test bamfile: `/private/groups/patenlab/mira/hprc_polishing/data/element_HG002/hprc_y2/alignments/bwa-mem/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.h1tg000001l.srt.bam`
 Test set:
 ```
-h1tg000001l	95040761	95040762	.	5.6	T	C	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:3:7:0,7:1:2,4,0	h1tg000001l	95040761	95040762	.	5.6	T	C	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:3:7:0,7:1:2,4,0
-h1tg000001l	4641590	4641591	.	22.4	C	CTT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:5:28:5,23:0.821429:20,2,0	h1tg000001l	4641590	4641591	.	22.4	C	CTT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:5:28:5,23:0.821429:20,2,0
-h1tg000001l	76358599	76358600	.	4.1	C	T	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:4:6:0,6:1:1,11,0	h1tg000001l	76358599	76358600	.	4.1	C	T	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:4:6:0,6:1:1,11,0
-h1tg000001l	7127121	7127122	.	19.4	A	AAT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:15:34:2,31:0.911765:19,17,0	h1tg000001l	156227861	156227862	.	19.4	A	AAT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:15:34:2,31:0.911765:19,17,0
-h1tg000001l	8382273	8382274	.	4.4	G	C	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:2:5:1,4:0.8:0,3,0	h1tg000001l	8392273	8392274	.	4.4	G	C	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:2:5:1,4:0.8:0,3,0
-h1tg000001l	112169074	112169075	.	19.4	A	AT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:17:125:2,123:0.984:19,21,0	h1tg000001l	112169100	112169101	.	19.4	A	AT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:17:125:2,123:0.984:19,21,0
+h1tg000001l	95040761	95040762	95040762  .	5.6	T	C	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:3:7:0,7:1:2,4,0	h1tg000001l	95040761	95040762	.	5.6	T	C	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:3:7:0,7:1:2,4,0
+h1tg000001l	4641590	4641591	  4641591.	22.4	C	CTT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:5:28:5,23:0.821429:20,2,0	h1tg000001l	4641590	4641591	.	22.4	C	CTT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:5:28:5,23:0.821429:20,2,0
+h1tg000001l	76358599	76358600 76358600	.	4.1	C	T	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:4:6:0,6:1:1,11,0	h1tg000001l	76358599	76358600	.	4.1	C	T	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:4:6:0,6:1:1,11,0
+h1tg000001l	7127121	7127122 7127122	.	19.4	A	AAT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:15:34:2,31:0.911765:19,17,0	h1tg000001l	156227861	156227862	.	19.4	A	AAT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:15:34:2,31:0.911765:19,17,0
+h1tg000001l	8382273	8382274 8382274 .	4.4	G	C	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:2:5:1,4:0.8:0,3,0	h1tg000001l	8392273	8392274	.	4.4	G	C	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:2:5:1,4:0.8:0,3,0
+h1tg000001l	112169074	112169075 112169075	.	19.4	A	AT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:17:125:2,123:0.984:19,21,0	h1tg000001l	112169100	112169101	.	19.4	A	AT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:.:.	1/1:17:125:2,123:0.984:19,21,0
 ```
 
 - keeping original vcf entry by pasting it back in after vcf2bed step
@@ -282,14 +276,109 @@ h1tg000001l	112169074	112169075	.	19.4	A	AT	PASS	.	GT:GQ:DP:AD:VAF:PL	./.:.:.:.:
 - compare two lists, only print variant to new vcf file if they are different
 
 ```
-python3 check_haplotype_read_alignments.py --hap1Bam /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.h1tg000001l.srt.bam --hap2Bam /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.h1tg000001l.srt.bam --hap1Blocks /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/test_projections.bed --hap2Blocks /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/test_projections.bed --inVcf /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf --outVcf /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.deepvariant_1.5.WGS.PASS.homalt.filt.vcf
+python3 check_haplotype_read_alignments.py --hap1Bam /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.h1tg000001l.srt.bam --hap2Bam /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.h1tg000001l.srt.bam --hap1Blocks /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/test_projections.bed --hap2Blocks /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/test_projections.bed --hap1Vcf /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf --hap2Vcf /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf --outPrefix /Users/miramastoras/Desktop/element_polishing_files/check_reads_aligned/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.deepvariant_1.5.WGS.PASS.homalt.filt
 ```
 
-Confirmed it worked on the test set. Now running it on the whole bam file and set of projections to see how many homozygous variants are kept.
+Running it on the whole bam file and set of projections to see how many homozygous variants are kept.
 
 Using the exact projections, without expanding by 10bp:
+```
+paste -d "\t" /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/pat_variants_projectable_to_mat.bed /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/pat_variants_projection_to_mat.bed > /private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/pat_variants_projected_blocks_to_mat.bed
 
+paste -d "\t" /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/mat_variants_projectable_to_pat.bed /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/mat_variants_projection_to_pat.bed > /private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/mat_variants_projected_blocks_to_pat.bed
+```
 
+```
+#!/bin/bash
+#SBATCH --job-name=check_reads_aligned
+#SBATCH --mail-type=FAIL,END
+#SBATCH --partition=main
+#SBATCH --mail-user=mmastora@ucsc.edu
+#SBATCH --nodes=1
+#SBATCH --mem=300gb
+#SBATCH --cpus-per-task=8
+#SBATCH --output=%x.%j.log
+#SBATCH --time=5:00:00
+
+conda activate pysam
+time python3 check_haplotype_read_alignments.py \
+--hap1Bam /private/groups/patenlab/mira/hprc_polishing/data/element_HG002/hprc_y2/alignments/bwa-mem/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.srt.bam \
+--hap2Bam /private/groups/patenlab/mira/hprc_polishing/data/element_HG002/hprc_y2/alignments/bwa-mem/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.mat.element_50X.srt.bam \
+--hap1Blocks /private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/pat_variants_projected_blocks_to_mat.bed \
+--hap2Blocks /private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/mat_variants_projected_blocks_to_pat.bed \
+--hap1Vcf /private/groups/patenlab/mira/hprc_polishing/data/element_HG002/hprc_y2/deepvariant/bwa-mem_bams/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf \
+--hap2Vcf /private/groups/patenlab/mira/hprc_polishing/data/element_HG002/hprc_y2/deepvariant/bwa-mem_bams/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.mat.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf \
+--outPrefix /private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.filt
+```
+Runtime was 2:23
+
+```
+grep "^#" HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.filt.hap1.vcf > HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.filt.hap1.srt.vcf
+grep -v "^#" HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.filt.hap1.vcf | sort -k1,1V -k2,2g >> HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.filt.hap1.srt.vcf
+
+grep "^#" HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.filt.hap2.vcf > HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.filt.hap2.srt.vcf
+grep -v "^#" HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.filt.hap2.vcf | sort -k1,1V -k2,2g >> HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.filt.hap2.srt.vcf
+```
+10bp expanded
+```
+paste -d "\t" /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/pat_variants_projectable_to_mat.10bp.bed /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/pat_variants_projection_to_mat.10bp.bed > /private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/pat_variants_projected_to_mat.10bp.bed
+
+paste -d "\t" /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/mat_variants_projectable_to_pat.10bp.bed /private/groups/patenlab/mira/hprc_polishing/element_polishing/link_haplotypes/mat_variants_projection_to_pat.10bp.bed > /private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/mat_variants_projected_to_pat.10bp.bed
+
+time python3 check_haplotype_read_alignments.py \
+--hap1Bam /private/groups/patenlab/mira/hprc_polishing/data/element_HG002/hprc_y2/alignments/bwa-mem/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.srt.bam \
+--hap2Bam /private/groups/patenlab/mira/hprc_polishing/data/element_HG002/hprc_y2/alignments/bwa-mem/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.mat.element_50X.srt.bam \
+--hap1Blocks /private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/pat_variants_projected_to_mat.10bp.bed \
+--hap2Blocks /private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/mat_variants_projected_to_pat.10bp.bed \
+--hap1Vcf /private/groups/patenlab/mira/hprc_polishing/data/element_HG002/hprc_y2/deepvariant/bwa-mem_bams/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf \
+--hap2Vcf /private/groups/patenlab/mira/hprc_polishing/data/element_HG002/hprc_y2/deepvariant/bwa-mem_bams/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.mat.element_50X.deepvariant_1.5.WGS.PASS.homalt.vcf \
+--outPrefix /private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.10bp.filt
+
+grep "^#" HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.10bp.filt.hap1.vcf > HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.10bp.filt.hap1.srt.vcf
+grep -v "^#" HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.10bp.filt.hap1.vcf | sort -k1,1V -k2,2g >> HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.10bp.filt.hap1.srt.vcf
+
+grep "^#" HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.10bp.filt.hap2.vcf > HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.10bp.filt.hap2.srt.vcf
+grep -v "^#" HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.10bp.filt.hap2.vcf | sort -k1,1V -k2,2g >> HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.10bp.filt.hap2.srt.vcf
+```
+
+Run dipcall and apply polish for 0 and 10 bp
+```
+{
+  "applyPolish_dipcall.hap2Fasta": "/private/groups/patenlab/mira/hprc_polishing/data/HG002_y2_polishing/assembly/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.mat.fa",
+  "applyPolish_dipcall.confidenceBedFile": "/private/groups/patenlab/mira/data/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed",
+  "applyPolish_dipcall.hap1PolishingVcf": "/private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.filt.hap1.srt.vcf.gz",
+  "applyPolish_dipcall.hap2PolishingVcf": "/private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.filt.hap2.srt.vcf.gz",
+  "applyPolish_dipcall.sampleID": "HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element.PASS.homalt.filtReads.0bp",
+  "applyPolish_dipcall.referenceFasta": "/private/groups/patenlab/mira/data/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta",
+  "applyPolish_dipcall.dipcall_t.referenceIsHS38": true,
+  "applyPolish_dipcall.referenceFastaFai": "/private/groups/patenlab/mira/data/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta.fai",
+  "applyPolish_dipcall.dipcall_t.isMaleSample": true,
+  "applyPolish_dipcall.hap1Fasta": "/private/groups/patenlab/mira/hprc_polishing/data/HG002_y2_polishing/assembly/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.fa"
+}
+```
+
+```
+{
+  "applyPolish_dipcall.hap2Fasta": "/private/groups/patenlab/mira/hprc_polishing/data/HG002_y2_polishing/assembly/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.mat.fa",
+  "applyPolish_dipcall.confidenceBedFile": "/private/groups/patenlab/mira/data/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed",
+  "applyPolish_dipcall.hap1PolishingVcf": "/private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.10bp.filt.hap1.srt.vcf.gz",
+  "applyPolish_dipcall.hap2PolishingVcf": "/private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element_50X.deepvariant_1.5.WGS.PASS.homalt.10bp.filt.hap2.srt.vcf.gz",
+  "applyPolish_dipcall.sampleID": "HG002.trio_hifiasm_0.19.5.DC_1.2_40x.element.PASS.homalt.filtReads.10bp",
+  "applyPolish_dipcall.referenceFasta": "/private/groups/patenlab/mira/data/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta",
+  "applyPolish_dipcall.dipcall_t.referenceIsHS38": true,
+  "applyPolish_dipcall.referenceFastaFai": "/private/groups/patenlab/mira/data/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta.fai",
+  "applyPolish_dipcall.dipcall_t.isMaleSample": true,
+  "applyPolish_dipcall.hap1Fasta": "/private/groups/patenlab/mira/hprc_polishing/data/HG002_y2_polishing/assembly/HG002.trio_hifiasm_0.19.5.DC_1.2_40x.pat.fa"
+}
+```
+
+```
+cd /private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/dipcall_happy_0bp
+cd /private/groups/patenlab/mira/hprc_polishing/element_polishing/check_reads_hap_aln/dipcall_happy_10bp
+
+mkdir -p logs && time SINGULARITY_CACHEDIR=`pwd`/outputs/cache/.singularity/cache MINIWDL__SINGULARITY__IMAGE_CACHE=`pwd`/outputs/cache/.cache/miniwdl toil-wdl-runner --logDebug --jobStore ./big_store --batchSystem slurm --batchLogsDir ./logs /private/home/mmastora/progs/hpp_production_workflows/QC/wdl/workflows/applyPolish_dipcall.wdl applyPolish_dipcall_inputs.json -o applyPolish_dipcall_outputs -m applyPolish_dipcall_outputs.json  2>&1 | tee applyPolish_dipcall_log.txt
+
+```
 ## 3. Integrating heterozygous element calls: correcting false homozygous regions
 
 **Linking haplotypes**
