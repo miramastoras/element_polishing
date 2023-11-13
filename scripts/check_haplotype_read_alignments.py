@@ -40,9 +40,9 @@ def filter_variants(projectableBam,projectionBam,blocksPath,outVcfPath):
         projectableStart = int(line[1])
         projectableEnd= int(line[2])
 
-        projectionContig = line[12]
-        projectionStart = int(line[13])
-        projectionEnd = int(line[14])
+        projectionContig = line[13]
+        projectionStart = int(line[14])
+        projectionEnd = int(line[15])
 
         # get list of reads aligned to variant and its projected location on other haplotype
         projectableReadNames=get_read_names(projectableContig,projectableStart,projectableEnd,projectableBam)
@@ -53,7 +53,7 @@ def filter_variants(projectableBam,projectionBam,blocksPath,outVcfPath):
 
         if projectionReadNames==projectableReadNames:
             with open(outVcfPath, 'a') as outVcf:
-                vcfEntry=[line[0]] + line[2:11]
+                vcfEntry=[line[0]] + line[3:12]
                 print(*vcfEntry,sep="\t",file = outVcf)
 
 def main():
