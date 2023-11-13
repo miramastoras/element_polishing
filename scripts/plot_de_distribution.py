@@ -55,7 +55,7 @@ plt.ylabel('Frequency')
 plt.title('de dist of reads, binsize 1e-2')
 
 # Set the x-axis tick labels
-num_labels=20
+num_labels=15
 x_ticks = np.linspace(min(data), max(data), num_labels)
 plt.xticks(x_ticks, fontsize=5)
 
