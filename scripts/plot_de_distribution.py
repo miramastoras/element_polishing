@@ -55,7 +55,7 @@ plt.ylabel('Frequency')
 plt.title('de dist of reads, binsize 1e-2')
 
 interval = np.arange(0,0.25,0.01) 
-plt.set_xticks(xinterval)
-plt.set_xticklabels(xinterval)
+plt.set_xticks(interval)
+plt.set_xticklabels(interval)
 # Display the plot
 plt.savefig(args.out_prefix +".de_dist.png", dpi=600)
