@@ -22,7 +22,7 @@ def get_read_names(contig, start,end, alignmentFile):
         readNames.append(read.query_name)
     return readNames
 
-def filter_variants(projectableBam,projectionBam,blocksPath,outVcfPath):
+def filter_variants(projectableBam,projectionBam,blocksPath,outVcfPath,filteredOutPath):
     '''
     :param bam
     :param blocksPath:
@@ -55,6 +55,11 @@ def filter_variants(projectableBam,projectionBam,blocksPath,outVcfPath):
             with open(outVcfPath, 'a') as outVcf:
                 vcfEntry=[line[0]] + [line[3]] + [line[4]] + [line[6]] + [line[7]] + [line[5]] + line[8:11] + [line[12]] + [line[11]]
                 print(*vcfEntry,sep="\t",file = outVcf)
+        else:
+            with open(filteredOutPath, 'a') as outVcf:
+                vcfEntry = [line[0]] + [line[3]] + [line[4]] + [line[6]] + [line[7]] + [line[5]] + line[8:11] + [
+                    line[12]] + [line[11]]
+                print(*vcfEntry, sep="\t", file=outVcf)
 
 def main():
     parser = argparse.ArgumentParser(
@@ -84,6 +89,8 @@ def main():
     hap2VcfPath = args.hap2Vcf
     hap1OutVcfPath = args.outPrefix + ".hap1.vcf"
     hap2OutVcfPath = args.outPrefix + ".hap2.vcf"
+    filteredHap1 = args.outPrefix + ".hap1.removed.vcf"
+    filteredHap2 = args.outPrefix + ".hap2.removed.vcf"
 
     # print vcf header to output file
     outHap1Vcf = open(hap1OutVcfPath, "a")
@@ -103,9 +110,9 @@ def main():
     hap2Bam = pysam.AlignmentFile(hap2BamPath, "rb")
 
     # filter hap1 variants
-    filter_variants(hap1Bam,hap2Bam,hap1BlocksPath,hap1OutVcfPath)
+    filter_variants(hap1Bam,hap2Bam,hap1BlocksPath,hap1OutVcfPath, filteredHap1)
     # filter hap2 variants
-    filter_variants(hap2Bam, hap1Bam, hap2BlocksPath, hap2OutVcfPath)
+    filter_variants(hap2Bam, hap1Bam, hap2BlocksPath, hap2OutVcfPath, filteredHap2)
 
 if __name__ == '__main__':
     main()
