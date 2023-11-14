@@ -41,7 +41,7 @@ with open(args.out_prefix + ".de_dist.txt", 'w') as fp:
                     # write each item on a new line
                             fp.write("%s\n" % item)
 # Set the bin size
-bin_size = 1e-2
+bin_size = 1e-3
 
 # Calculate the number of bins based on the bin size
 #num_bins = int(1 / bin_size)
@@ -52,7 +52,7 @@ plt.hist(data, bins=num_bins, color = "blue",alpha=1, rwidth=0.5)
 
 plt.xlabel('de Value')
 plt.ylabel('Frequency')
-plt.title('de dist of reads, binsize 1e-2')
+plt.title('de dist of reads, binsize 1e-3')
 
 # Set the x-axis tick labels
 num_labels=15
