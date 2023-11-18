@@ -3,7 +3,7 @@ HAPPY_VCF_GZ=$1
 mkdir ./counting/
 cd ./counting
 
-zcat $HAPPY_VCF | grep -v "^#"  | grep ":F" | cut -f10 | cut -d":" -f6-7  > truth.FPFN.txt
+zcat $HAPPY_VCF_GZ | grep -v "^#"  | grep ":F" | cut -f10 | cut -d":" -f6-7  > truth.FPFN.txt
 
 zcat $HAPPY_VCF_GZ | grep -v "^#"  | grep ":F" | cut -f11 | cut -d":" -f6-7  > query.FPFN.txt
 
