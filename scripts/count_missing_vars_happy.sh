@@ -1,7 +1,7 @@
 HAPPY_VCF_GZ=$1
 
 mkdir ./counting/
-cd ./counting
+cd counting
 
 zcat $HAPPY_VCF_GZ | grep -v "^#"  | grep ":F" | cut -f10 | cut -d":" -f6-7  > truth.FPFN.txt
 
@@ -32,7 +32,7 @@ awk '$2 ~ /hom/ { print }' sums.corrected.txt | awk '$3 ~ /no/ { print }' | awk 
 awk '$2 ~ /no/ { print }' sums.corrected.txt | awk '$3 ~ /hom/ { print }' | awk -F'\t' '{sum+=$1;} END{print sum;}' >> truth_hom_query_Fhom.txt
 awk -F'\t' '{sum+=$1;} END{print sum;}' truth_hom_query_Fhom.txt > tmp ; mv tmp truth_hom_query_Fhom.txt
 
-echo "TruthHet_Query_WrongHet,TruthHet_QueryHom,TruthHom_QueryHet,TruthHom_QueryWongHom" > ../counts_from_happy.csv
+echo "TruthHet_Query_WrongHet,TruthHet_QueryHom,TruthHom_QueryHet,TruthHom_QueryWrongHom" > ../counts_from_happy.csv
 paste -d"," truth_het_query_Fhet.txt truth_het_query_hom.txt truth_hom_query_het.txt truth_hom_query_Fhom.txt >> ../counts_from_happy.csv
 
 rm -rf ./counting/
