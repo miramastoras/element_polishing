@@ -3,9 +3,9 @@ HAPPY_VCF_GZ=$1
 mkdir ./counting/
 cd counting
 
-zcat $HAPPY_VCF_GZ | grep -v "^#"  | grep ":F" | cut -f10 | cut -d":" -f6-7  > truth.FPFN.txt
+zcat $HAPPY_VCF_GZ | grep -v "^#"  | sort | uniq | grep ":F" | cut -f10 | cut -d":" -f6-7  > truth.FPFN.txt
 
-zcat $HAPPY_VCF_GZ | grep -v "^#"  | grep ":F" | cut -f11 | cut -d":" -f6-7  > query.FPFN.txt
+zcat $HAPPY_VCF_GZ | grep -v "^#"  | sort | uniq | grep ":F" | cut -f11 | cut -d":" -f6-7  > query.FPFN.txt
 
 paste -d":" truth.FPFN.txt query.FPFN.txt | sort | uniq -c  | sed 's/ \+ /\t/g' | cut -f1 -d " "| sed -r 's/\s+//g' > counts.txt
 paste -d":" truth.FPFN.txt query.FPFN.txt | sort | uniq | cut -d ":" -f1-2 > truth.sum.txt
